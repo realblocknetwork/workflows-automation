@@ -1,0 +1,29 @@
+name: Automatically create a new branch and pull request when an issue is assigned
+
+on:
+  issues:
+    types: [assigned]
+
+jobs:
+  create-branch-and-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Create new branch
+      run: git checkout -b FTR-${{ env.ISSUE_NUMBER }}
+
+    - name: Commit changes
+      run: git commit -a -m "Add issue ${{ env.ISSUE_NUMBER }}"
+
+    - name: Push changes
+      run: git push -u origin FTR-${{ env.ISSUE_NUMBER }}
+
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        title: Issue ${{ env.ISSUE_NUMBER }}
+        head: FTR-${{ env.ISSUE_NUMBER }}
+        base: develop
