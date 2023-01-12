@@ -1,6 +1,9 @@
 name: Scheduled Ticket Clean Up
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '30 23 * * SUN'
 
 jobs:
   test:
