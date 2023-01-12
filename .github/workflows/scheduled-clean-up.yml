@@ -1,0 +1,48 @@
+name: Scheduled Ticket Clean Up
+
+on: 
+  workflow_dispatch:
+    inputs:
+      itemID:
+        description: "ID del nodo del item a mover"
+        required: true
+        type: string
+        
+  schedule:
+    - cron: '30 23 * * SUN'
+
+jobs:
+  test:
+    name: Remove tickets Good to go column
+    runs-on: ubuntu-latest
+    steps:
+        
+      - name: Generate APP token
+        id: generate_token
+        uses: tibdex/github-app-token@v1.7
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PEM }}
+          
+      - name: Move ticket from good to go to history
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          gh api graphql -f query='
+            mutation moveTicket($itemID: ID!, $projectID: ID!, $fieldValue: String!, $fieldID: ID!) {
+              updateProjectV2ItemFieldValue(
+                  input: {
+                  projectId: $projectID
+                  itemId: $itemID
+                  fieldId: $fieldID
+                  value : {
+                    singleSelectOptionId: $fieldValue
+                    }
+                  }
+               ){
+                projectV2Item{
+                  id
+                  fieldValueByName(name:"Backlog")
+                }
+              } 
+           }' -f itemID=${{inputs.itemID}} -f projectID=${{vars.PROJECT_ID_1}} -f fieldValue=${{vars.BACKLOG_FIELD_HISTORY_ID}} -f fieldID=${{vars.BACKLOG_PROJECT_FIELD_ID}} 
