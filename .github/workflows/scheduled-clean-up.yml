@@ -1,0 +1,32 @@
+name: Scheduled Ticket Clean Up
+
+on:
+  schedule:
+  	- cron: '45 23 * * SUN'	
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Remove tickets Good to go column
+    runs-on: ubuntu-latest
+    steps:
+      - name: From good to go to history
+        run: |
+          gh api graphql -f query='
+            mutation {
+            updateProjectV2ItemFieldValue(
+                input: {
+                projectId: "${{vars.PROJECT_ID_1}}"
+                itemId: "PVTFSV_lQDOB0kbfc4AKbSgzgEN287OAuI2sw"
+                fieldId: "${{vars.BACKLOG_PROJECT_FIELD_ID}}"
+                value : {
+                  singleSelectOptionId: "${{vars.BACKLOG_FIELD_HISTORY_ID}}"
+                  }
+                }
+             ){
+              projectV2Item{
+                id
+                fieldValueByName(name:"Backlog")
+                }
+              } 
+           }'
