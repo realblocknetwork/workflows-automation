@@ -24,7 +24,7 @@ jobs:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PEM }}
           
-      - name: Move ticket from good to go to history
+      - name: Make ticket part of history
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
@@ -45,4 +45,5 @@ jobs:
                   fieldValueByName(name:"Backlog")
                 }
               } 
-           }' -f itemID=${{inputs.itemID}} -f projectID=${{vars.PROJECT_ID_1}} -f fieldValue=${{vars.BACKLOG_FIELD_HISTORY_ID}} -f fieldID=${{vars.BACKLOG_PROJECT_FIELD_ID}} 
+           }' -f itemID=${{inputs.itemID}} -f projectID=${{vars.PROJECT_ID_1}} -f fieldValue=${{vars.BACKLOG_FIELD_HISTORY_ID}} -f fieldID=${{vars.BACKLOG_PROJECT_FIELD_ID}}
+        
