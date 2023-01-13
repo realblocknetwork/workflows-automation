@@ -1,0 +1,16 @@
+name: Move issues created outside backlog
+
+on:
+  workflow_dispatch:
+  issues:
+    types:
+      - opened
+
+jobs:
+  print:
+    name: I print information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo print
+        run: |
+          echo "Estoy en el job print"
