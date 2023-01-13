@@ -42,7 +42,16 @@ jobs:
                ){
                 projectV2Item{
                   id
-                  fieldValueByName(name:"Backlog")
+                  content{
+                    ... on Issue{
+                      number
+                      title
+                    }
+                    ... on PullRequest{
+                      number
+                      title
+                    }
+                  }
                 }
               } 
            }' -f itemID=${{inputs.itemID}} -f projectID=${{vars.PROJECT_ID_1}} -f fieldValue=${{vars.BACKLOG_FIELD_HISTORY_ID}} -f fieldID=${{vars.BACKLOG_PROJECT_FIELD_ID}}
