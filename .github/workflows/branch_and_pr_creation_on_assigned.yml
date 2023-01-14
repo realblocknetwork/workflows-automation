@@ -9,8 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Print issue and labels
+      run: |
+        echo "Issue: ${{ github.event.issue.number }}"
+        echo "Labels: ${{ github.event.issue.labels[0] }}"
+    
     - name: Check the branch does not already exist
-      if: ${{ github.event.issue.labels[0] == 'FTR' || github.event.issue.labels[0] == 'HTX' || github.event.issue.labels[0] == 'RLS' }}
+      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
         git ls-remote --heads origin ${{ github.event.issue.labels[0] }}-${{ github.event.issue.number }}
         if [ $? -eq 0 ]; then
