@@ -1,42 +1,39 @@
-name: Automatically create a new branch and pull request when an issue is assigned
+name: Create branch and pr on issue assigned
+
+run-name: Create branch and pr for issue /#${{ github.event.issue.number }}
 
 on:
   issues:
     types: [assigned]
 
+env:
+  IS_CORRECT_LABEL: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
+
 jobs:
-  create-branch-and-pull-request:
+  create-branch:
+    name: Create branch
     runs-on: ubuntu-latest
-
     steps:
-    - name: Print issue and labels
-      run: |
-        echo "Labels: ${{ github.event.issue.labels[0].name }}"
-    
-    - name: Check the branch does not already exist
-      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
-      run: |
-        git branch --list ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
-        if [ $? -eq 0 ]; then
-          echo ""
-          exit 1
-        fi
-
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: develop
         fetch-depth: 0
     
     - name: Create branch
-      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
+      if: $IS_CORRECT_LABEL
       run: |
         git config --local user.email "
         git config --local user.name "
         git checkout -b ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
         git push --set-upstream origin ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
 
+  create-pr:
+    name: Create pull request
+    needs: create-branch
+    runs-on: ubuntu-latest
+    steps:
     - name: Create pull request
-      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
+      if: $IS_CORRECT_LABEL
       run:
         gh pr create --title "${{ github.event.issue.title }}" --body "${{ github.event.issue.body }}" --base develop --head ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
