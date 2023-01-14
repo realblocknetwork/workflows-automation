@@ -1,16 +1,36 @@
 name: Move issues created outside backlog
 
 on:
-  workflow_dispatch:
   issues:
     types:
       - opened
+      - assigned # Trigger for testing purposes
 
 jobs:
-  print:
-    name: I print information
+  check-issue-creation:
+    name: Check if issue was created outside backlog
     runs-on: ubuntu-latest
     steps:
-      - name: Echo print
+      - name: Dummy step
         run: |
           echo "Estoy en el job print"
+          
+  add-label:
+    name: Adding appropriate label to issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get issue type
+        id: get-issue-type
+        run: |
+          case $( echo ${{ github.event.issue.title }} | cut -d':' -f1) in
+            FTR | HTX | RLS)
+              echo "ISSUE_TYPE=$(echo ${{ github.event.issue.title }} | cut -d':' -f1)" >> $GITHUB_OUTPUT
+              ;;
+            *) 
+              echo "ISSUE_TYPE=OTHER" >> $GITHUB_OUTPUT
+              ;;
+          esac
+      
+      - name: Add label to issue
+        run: |
+          gh issue edit ${{ github.event.issue.number }} --add-label ${{ steps.get-issue-type.outputs.ISSUE_TYPE }}
