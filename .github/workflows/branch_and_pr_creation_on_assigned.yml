@@ -1,13 +1,10 @@
 name: Create branch and pr on issue assigned
 
-run-name: Create branch and pr for issue /#${{ github.event.issue.number }}
+run-name: Create branch and pr for issue ${{ github.event.issue.number }}
 
 on:
   issues:
     types: [assigned]
-
-env:
-  IS_CORRECT_LABEL: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
 
 jobs:
   create-branch:
@@ -21,7 +18,7 @@ jobs:
         fetch-depth: 0
     
     - name: Create branch
-      if: $IS_CORRECT_LABEL
+      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
         git config --local user.email "
         git config --local user.name "
@@ -34,6 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Create pull request
-      if: $IS_CORRECT_LABEL
+      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run:
         gh pr create --title "${{ github.event.issue.title }}" --body "${{ github.event.issue.body }}" --base develop --head ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
