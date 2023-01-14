@@ -29,18 +29,10 @@ jobs:
     name: Create pull request
     needs: create-branch
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
     - name: Create pull request
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
-      uses: peter-evans/create-pull-request@v4
-      with:
-        token: ${{ secrets.PAT }}
-        commit-message: "Create pull request for issue ${{ github.event.issue.number }}"
-        title: "${{ github.event.issue.title }}"
-        body: "${{ github.event.issue.body }}"
-        branch: ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
-        base: develop
-        labels: ${{ github.event.issue.labels[0].name }}
-        team-reviewers: buildtheblock/reviewers
-        assignees: ${{ github.event.issue.assignee.login }}
-        delete-branch: true
+      run: |
+        gh pr create --title "${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}" --body "Closes #${{ github.event.issue.number }}" --base develop --head ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }} --label ${{ github.event.issue.labels[0].name }} --reviewers buildtheblock/reviewers --assignees @${{ github.event.issue.assignee.login }} --repo ${{ github.event.repository.name }}
