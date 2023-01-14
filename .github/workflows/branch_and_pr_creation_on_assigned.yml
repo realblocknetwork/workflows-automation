@@ -9,21 +9,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Check the branch does not already exist
+      if: ${{ github.event.issue.labels[0] == 'FTR' || github.event.issue.labels[0] == 'HTX' || github.event.issue.labels[0] == 'RLS' }}
+      run: |
+        git ls-remote --heads origin ${{ github.event.issue.labels[0] }}-${{ github.event.issue.number }}
+        if [ $? -eq 0 ]; then
+          echo ""
+          exit 1
+        fi
+
+    - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Create new branch
-      run: git checkout -b FTR-${{ env.ISSUE_NUMBER }}
-
-    - name: Commit changes
-      run: git commit -a -m "Add issue ${{ env.ISSUE_NUMBER }}"
-
-    - name: Push changes
-      run: git push -u origin FTR-${{ env.ISSUE_NUMBER }}
+      with:
+        ref: develop
+        fetch-depth: 0
+    
+    - name: Create branch
+      if: ${{ github.event.issue.labels[0] == 'FTR' || github.event.issue.labels[0] == 'HTX' || github.event.issue.labels[0] == 'RLS' }}
+      run: |
+        git config --local user.email "
+        git config --local user.name "
+        git checkout -b ${{ github.event.issue.labels[0] }}-${{ github.event.issue.number }}
+        git push --set-upstream origin ${{ github.event.issue.labels[0] }}-${{ github.event.issue.number }}
 
     - name: Create pull request
-      uses: peter-evans/create-pull-request@v3
-      with:
-        title: Issue ${{ env.ISSUE_NUMBER }}
-        head: FTR-${{ env.ISSUE_NUMBER }}
-        base: develop
+      if: ${{ github.event.issue.labels[0] == 'FTR' || github.event.issue.labels[0] == 'HTX' || github.event.issue.labels[0] == 'RLS' }}
+      run:
+        gh pr create --title "${{ github.event.issue.title }}" --body "${{ github.event.issue.body }}" --base develop --head ${{ github.event.issue.labels[0] }}-${{ github.event.issue.number }}
