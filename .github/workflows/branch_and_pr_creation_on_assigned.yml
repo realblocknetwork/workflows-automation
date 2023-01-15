@@ -32,12 +32,17 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
+        fetch-depth: 0
+
     - name: Commit dummy change to branch
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
         git config --local user.email "
         git config --local user.name "
-        git checkout ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
         echo "Dummy change" >> dummy.txt
         git add dummy.txt
         git commit -m "Dummy change"
@@ -53,6 +58,5 @@ jobs:
       run: |
         git config --local user.email "
         git config --local user.name "
-        git checkout ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
         git reset --hard HEAD~1
         git push --force
