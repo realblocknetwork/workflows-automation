@@ -16,7 +16,7 @@ jobs:
       with:
         ref: develop
         fetch-depth: 0
-    
+
     - name: Create branch
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
@@ -32,7 +32,27 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - name: Commit dummy change to branch
+      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
+      run: |
+        git config --local user.email "
+        git config --local user.name "
+        git checkout ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
+        echo "Dummy change" >> dummy.txt
+        git add dummy.txt
+        git commit -m "Dummy change"
+        git push 
+
     - name: Create pull request
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
         gh pr create --title "${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}" --body "Closes #${{ github.event.issue.number }}" --base develop --head ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }} --label ${{ github.event.issue.labels[0].name }} --reviewer marcosmartinezfco,diegogonzalezfe --assignee ${{ github.event.issue.assignee.login }} --repo buildtheblock/${{ github.event.repository.name }}
+
+    - name: Delete dummy change
+      if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
+      run: |
+        git config --local user.email "
+        git config --local user.name "
+        git checkout ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
+        git reset --hard HEAD~1
+        git push --force
