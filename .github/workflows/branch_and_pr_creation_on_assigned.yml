@@ -20,8 +20,8 @@ jobs:
     - name: Create branch
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
-        git config --global user.email "
-        git config --global user.name "
+        git config --local user.email "
+        git config --local user.name "
         git checkout -b ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
         git push --set-upstream origin ${{ github.event.issue.labels[0].name }}-${{ github.event.issue.number }}
 
@@ -41,6 +41,8 @@ jobs:
     - name: Commit dummy change to branch
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
+        git config --local user.email "diego.gonzalezfe@alumnos.upm.es"
+        git config --local user.name "Auto-Diego"
         echo "Dummy change" >> dummy.txt
         git add dummy.txt
         git commit -m "Dummy change"
@@ -54,5 +56,7 @@ jobs:
     - name: Delete dummy change
       if: ${{ github.event.issue.labels[0].name == 'FTR' || github.event.issue.labels[0].name == 'HTX' || github.event.issue.labels[0].name == 'RLS' }}
       run: |
+        git config --local user.email "diego.gonzalezfe@alumnos.upm.es"
+        git config --local user.name "Auto-Diego"
         git reset --hard HEAD~1
         git push --force
