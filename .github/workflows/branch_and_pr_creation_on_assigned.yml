@@ -10,6 +10,8 @@ jobs:
   create-branch:
     name: Create branch
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.token }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
