@@ -1,10 +1,10 @@
 name: Create branch and pr on issue assigned
 
-run-name: Create branch and pr for issue ${{ github.event.issue.number }}
-
 on:
-  issues:
-    types: [assigned]
+  workflow_call:
+    secrets:
+      token:
+        required: true
 
 jobs:
   create-branch:
@@ -30,7 +30,7 @@ jobs:
     needs: create-branch
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.token }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
